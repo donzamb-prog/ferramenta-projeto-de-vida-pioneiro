@@ -1,0 +1,24 @@
+{
+"name": "Projeto de Vida - Ramo Pioneiro",
+"short_name": "PV Pioneiro",
+"description": "Ferramenta offline do Projeto de Vida para o Ramo Pioneiro.",
+"start_url": "./index.html",
+"display": "standalone",
+"background_color": "#f8fafc",
+"theme_color": "#D32F2F",
+"orientation": "any",
+"icons": [
+{
+"src": "Logo_ramo_pioneiro_principal (1).png",
+"sizes": "192x192",
+"type": "image/png",
+"purpose": "any"
+},
+{
+"src": "Logo_ramo_pioneiro_principal (1).png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any maskable"
+}
+]
+}

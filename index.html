@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto de Vida - Ramo Pioneiro</title>
+    <meta name="theme-color" content="#D32F2F">
+    
+    <!-- CONEXÃO OBRIGATÓRIA PARA O PWA FUNCIONAR -->
+    <link rel="manifest" href="manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .bg-pioneiro-red { background-color: #D32F2F; }
+        .text-pioneiro-red { color: #D32F2F; }
+        .border-pioneiro-red { border-color: #D32F2F; }
+
+        /* Estilo para simulação de linhas de caderno no fundo de textareas */
+        .linhas-caderno {
+            background-attachment: local;
+            background-image: linear-gradient(rgba(0,0,0,0.0) 95%, rgba(211, 47, 47, 0.1) 95%);
+            background-size: 100% 2rem;
+            line-height: 2rem;
+        }
+
+        /* Otimização especial para impressão */
+        @media print {
+            body {
+                background-color: #ffffff;
+                padding: 0;
+            }
+            .container-main {
+                box-shadow: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .page-break {
+                page-break-before: always;
+            }
+            textarea, input {
+                border: none !important;
+                border-bottom: 1px dashed #718096 !important;
+                background: transparent !important;
+                resize: none !important;
+            }
+            .print-badge {
+                border: 2px solid #000 !important;
+                color: #000 !important;
+                background-color: transparent !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-slate-800">
+
+<!-- Modal de Mensagem (Custom Alert) -->
+<div id="modal-alert" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border-t-8 border-pioneiro-red animate-in fade-in zoom-in duration-200">
+        <div class="p-6">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-pioneiro-red text-2xl mb-4">
+                ⚜️
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2" id="alert-titulo">Notificação</h3>
+            <p class="text-slate-600 text-sm" id="alert-mensagem">Mensagem de aviso aqui...</p>
+        </div>
+        <div class="bg-slate-50 px-6 py-4 flex justify-end">
+            <button onclick="fecharModalAlert()" class="bg-pioneiro-red hover:bg-red-800 text-white font-bold py-2 px-6 rounded-lg text-sm transition-colors shadow">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação (Custom Confirm) -->
+<div id="modal-confirm" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full overflow-hidden border-t-8 border-pioneiro-red animate-in fade-in zoom-in duration-200">
+        <div class="p-6">
+            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-pioneiro-red text-2xl mb-4">
+                ⚠️
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mb-2" id="confirm-titulo">Confirmação</h3>
+            <p class="text-slate-600 text-sm" id="confirm-mensagem">Você tem certeza?</p>
+        </div>
+        <div class="bg-slate-50 px-6 py-4 flex justify-end gap-3">
+            <button id="btn-confirm-cancelar" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm transition-colors">
+                Cancelar
+            </button>
+            <button id="btn-confirm-sim" class="bg-pioneiro-red hover:bg-red-800 text-white font-bold py-2 px-5 rounded-lg text-sm transition-colors shadow">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="container-main max-w-5xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border-t-[10px] border-[#D32F2F] relative">
+    
+    <!-- TIMBRADO DE FUNDO (Aparece no topo direito de forma suave) -->
+    <img id="img-timbrado" src="TIMBRADO.png" alt="Timbrado" class="absolute top-4 right-4 w-40 opacity-10 pointer-events-none transition-all duration-300" onerror="esconderImagemQuebrada(this);">
+
+    <!-- CABEÇALHO -->
+    <header class="p-6 md:p-8 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 bg-white/85 backdrop-blur-sm">
+        <div class="flex items-center gap-4" id="area-logo">
+            <img id="img-logo" src="Logo_ramo_pioneiro_principal (1).png" alt="Logo" class="max-w-[150px] h-auto object-contain transition-all duration-300" onerror="carregarFallbackLogo(this);">
+        </div>
+        <div class="text-center md:text-right">
+            <h1 class="text-3xl font-black text-pioneiro-red tracking-wide uppercase">Projeto de Vida</h1>
+            <p class="text-slate-500 font-semibold text-sm md:text-base mt-1">Programa Educativo — Ramo Pioneiro (Atualização 2025)</p>
+        </div>
+    </header>
+
+    <!-- IDENTIFICAÇÃO DO PIONEIRO -->
+    <section class="p-6 md:p-8 bg-slate-50 border-b border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="md:col-span-2">
+            <label class="block text-xs font-bold uppercase tracking-wider text-pioneiro-red mb-1">Nome do Pioneiro(a):</label>
+            <input type="text" id="ident-nome" class="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Nome completo para o portfólio...">
+        </div>
+        <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-pioneiro-red mb-1">Data de Preenchimento:</label>
+            <input type="text" id="ident-data" class="w-full bg-white border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="DD/MM/AAAA">
+        </div>
+    </section>
+
+    <!-- SELETOR DE ETAPAS (Abas interativas) -->
+    <div class="no-print bg-slate-100 p-2 flex flex-wrap gap-2 border-b border-slate-200">
+        <button type="button" onclick="alternarEtapa('descoberta')" id="tab-descoberta" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-pioneiro-red text-white">
+            🌅 1. Etapa Descoberta
+        </button>
+        <button type="button" onclick="alternarEtapa('destino')" id="tab-destino" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+            🧭 2. Etapa Destino
+        </button>
+        <button type="button" onclick="alternarEtapa('horizonte')" id="tab-horizonte" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50">
+            ⛰️ 3. Etapa Horizonte
+        </button>
+    </div>
+
+    <!-- FORMULÁRIO PRINCIPAL -->
+    <form id="projeto-vida-form" class="p-6 md:p-8 space-y-8">
+
+        <!-- ==================== ETAPA 1: DESCOBERTA ==================== -->
+        <div id="secao-descoberta" class="space-y-6">
+            <div class="bg-red-50 border-l-4 border-pioneiro-red p-5 rounded-r-xl">
+                <span class="inline-block bg-pioneiro-red text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Ingressando na Etapa Descoberta</span>
+                <p class="text-sm text-slate-700 leading-relaxed text-justify mb-3">
+                    O Projeto de Vida não é apenas um exercício escrito, mas um processo contínuo de descoberta. Ele serve como um mapa que orienta os caminhos dentro e fora do clã, ajudando a transformar sonhos em objetivos em conquistas pessoais.
+                    Por meio dele, você, pioneiro, terá a oportunidade de refletir sobre quem você é, o que deseja para seu futuro e como pode contribuir para um mundo à sua volta. Esse projeto é vivo: deve ser revisado e enriquecido conforme você vivencia novas experiências. 
+                </p>
+                <p class="text-xs text-pioneiro-red font-bold">
+                    ⚠️ Essa ferramenta deve ser utilizada logo após a Promessa Escoteira ou após a renovação da Promessa, no caso de jovens vindos do Ramo Sênior.
+                </p>
+            </div>
+
+            <!-- Perguntas Reflexivas -->
+            <div class="grid grid-cols-1 gap-6">
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">🎯 Objetivo Inicial</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="desc-quem-sou" class="block text-sm font-semibold text-slate-700 mb-1">"Quem sou eu?"</label>
+                            <textarea id="desc-quem-sou" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Responda de forma geral e resumida sua essência atual..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-caminhos" class="block text-sm font-semibold text-slate-700 mb-1">"Quais caminhos desejo trilhar?"</label>
+                            <textarea id="desc-caminhos" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Descreva brevemente as direções que pretende dar para sua vida..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">👤 Parte 1 – Quem sou eu?</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="desc-pontos-fortes" class="block text-sm font-semibold text-slate-700 mb-1">Quais são meus pontos fortes e talentos?</label>
+                            <textarea id="desc-pontos-fortes" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Liste aquilo em que você se destaca, qualidades e o que faz bem..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-pontos-melhorar" class="block text-sm font-semibold text-slate-700 mb-1">Quais pontos preciso melhorar?</label>
+                            <textarea id="desc-pontos-melhorar" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Indique fraquezas, hábitos ou aspectos que deseja lapidar..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-inspiracao" class="block text-sm font-semibold text-slate-700 mb-1">O que me inspira?</label>
+                            <textarea id="desc-inspiracao" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Pessoas, ideias, causas ou momentos que te movem..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-habilidades" class="block text-sm font-semibold text-slate-700 mb-1">Quais habilidades quero desenvolver agora?</label>
+                            <textarea id="desc-habilidades" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Competências intelectuais, sociais, manuais ou físicas..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-preocupacao" class="block text-sm font-semibold text-slate-700 mb-1">O que mais me preocupa ou desafia no momento?</label>
+                            <textarea id="desc-preocupacao" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Dilemas pessoais, acadêmicos, familiares ou profissionais..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">⭐ Parte 2 – Meus sonhos</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="desc-sonhos" class="block text-sm font-semibold text-slate-700 mb-1">Três sonhos meus que gostaria de realizar nos próximos 5 anos:</label>
+                            <textarea id="desc-sonhos" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Escreva de forma ordenada seus sonhos de médio prazo..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-versao" class="block text-sm font-semibold text-slate-700 mb-1">Qual a melhor versão de mim que quero alcançar?</label>
+                            <textarea id="desc-versao" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Quem você quer se tornar fisicamente, mentalmente e espiritualmente..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">🚀 Parte 3 – Primeiros passos</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="desc-objetivo-principal" class="block text-sm font-semibold text-slate-700 mb-1">Qual o meu principal objetivo neste momento da minha vida?</label>
+                            <textarea id="desc-objetivo-principal" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="O seu maior foco atual..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-acoes" class="block text-sm font-semibold text-slate-700 mb-1">Que pequenas ações posso começar hoje para me aproximar desse objetivo?</label>
+                            <textarea id="desc-acoes" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Passos pequenos e exequíveis..."></textarea>
+                        </div>
+                        <div>
+                            <label for="desc-impacto" class="block text-sm font-semibold text-slate-700 mb-1">Como posso gerar impacto positivo na minha comunidade?</label>
+                            <textarea id="desc-impacto" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Seu papel como cidadão e pioneiro..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloco de Progressão (Etapa 1) -->
+            <div class="p-6 bg-[#FFF3EB] rounded-2xl border-2 border-orange-200">
+                <div class="bg-pioneiro-red text-white text-center font-bold uppercase rounded-lg p-3 shadow-md mb-4 text-sm tracking-wider">
+                    Minha Progressão Pessoal do Ramo Pioneiro — Etapa Descoberta
+
+                </div>
+                <p class="text-xs text-pioneiro-red font-semibold text-center mb-6">
+                    BLOCOS: Aprendizagem Contínua e Desenvolvimento Vocacional, Autonomia e Liderança, Criatividade e Inovação, Inteligência Emocional, Consumo Responsável, Mudanças Climáticas, Preservação e Biodiversidade, Vida ao Ar Livre, Comunidade, Democracia, Herança Cultural, Promoção da Paz, Valores, Cuidado com o Corpo, Epiritualidade, Hábitos Saudáveis, Saúde Mental, Vínculos Saudáveis.
+                 <p class="text-xs text-pioneiro-red font-semibold text-center mb-6"
+                 ></p> 
+                    Minhas escolhas de 6 blocos relacionados com meus sonhos e desafios atuais e as ações que vou fazer para alcançá-los: 
+                </p>
+
+                <div class="space-y-4" id="grid-blocos-descoberta">
+                    <!-- Gerado Dinamicamente via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Rede de Apoio -->
+            <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2">🤝 Parte 5 – Minha rede de apoio</h3>
+                <div>
+                    <label for="desc-padrinho" class="block text-sm font-semibold text-slate-700 mb-1">✗ Quem eu gostaria de ter como padrinho/madrinha para me ajudar com a Progressão Pessoal?</label>
+                    <textarea id="desc-padrinho" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Um pioneiro mais experiente, Mestre ou padrinho externo..."></textarea>
+                </div>
+                <div>
+                    <label for="desc-rede-apoio" class="block text-sm font-semibold text-slate-700 mb-1">✗ Quem mais pode me inspirar e ajudar a seguir em frente?</label>
+                    <textarea id="desc-rede-apoio" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Professores, familiares ou amigos de confiança..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ETAPA 2: DESTINO ==================== -->
+        <div id="secao-destino" class="space-y-6 hidden">
+            <div class="bg-red-50 border-l-4 border-pioneiro-red p-5 rounded-r-xl">
+                <span class="inline-block bg-pioneiro-red text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Ingressando na Etapa Destino</span>
+                <p class="text-sm text-slate-700 leading-relaxed text-justify">
+                    <strong>Objetivo:</strong> Revisitar o Projeto de Vida e aprofundar interesses. Essa ferramenta deve ser preenchida na Vigília Pioneira e apresentada na Investidura Pioneira.
+                </p>
+            </div>
+
+            <!-- Perguntas Reflexivas Destino -->
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Parte 1 -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">📜 Parte 1 - Refletir sobre o significado da Promessa e da Lei Escoteira na vida adulta</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="dest-promessa-decisoes" class="block text-sm font-semibold text-slate-700 mb-1">Como os princípios da Promessa e da Lei Escoteira influenciam as decisões que tomo fora do Movimento Escoteiro?</label>
+                            <textarea id="dest-promessa-decisoes" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Anote suas reflexões..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-compromisso-dia" class="block text-sm font-semibold text-slate-700 mb-1">De que maneira vivo, no dia a dia, o compromisso que assumi ao fazer a Promessa?</label>
+                            <textarea id="dest-compromisso-dia" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Anote suas reflexões..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-lei-desafiadora" class="block text-sm font-semibold text-slate-700 mb-1">Quais artigos da Lei Escoteira são mais desafiadores de seguir na vida adulta? Por quê?</label>
+                            <textarea id="dest-lei-desafiadora" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Anote suas reflexões..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-conflitos-resolvidos" class="block text-sm font-semibold text-slate-700 mb-1">Em que momentos recentes percebi que meus valores escoteiros ajudaram a resolver um problema ou conflito?</label>
+                            <textarea id="dest-conflitos-resolvidos" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Anote suas reflexões..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-inspirar-outros" class="block text-sm font-semibold text-slate-700 mb-1">Como posso inspirar outras pessoas a viverem de acordo com os valores que pratico no Escotismo?</label>
+                            <textarea id="dest-inspirar-outros" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Anote suas reflexões..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte 2 -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">🧭 Parte 2 - Revisitando minha jornada</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="dest-conquistas-anterior" class="block text-sm font-semibold text-slate-700 mb-1">Quais conquistas tive desde a etapa anterior?</label>
+                            <textarea id="dest-conquistas-anterior" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Avanços pessoais, acadêmicos ou escoteiros..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-dificuldades-superadas" class="block text-sm font-semibold text-slate-700 mb-1">Quais foram as maiores dificuldades e como as superei?</label>
+                            <textarea id="dest-dificuldades-superadas" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Desafios pessoais e resiliência..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-mudanca-pessoal" class="block text-sm font-semibold text-slate-700 mb-1">O que mudou em mim desde então?</label>
+                            <textarea id="dest-mudanca-pessoal" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Sua evolução de maturidade..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte 3 -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">🎯 Parte 3 - Meus planos agora</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="dest-prioridades-atuais" class="block text-sm font-semibold text-slate-700 mb-1">Quais são minhas prioridades pessoais, profissionais e escoteiras?</label>
+                            <textarea id="dest-prioridades-atuais" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Alinhamento e foco de tempo..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-sonho-sentido" class="block text-sm font-semibold text-slate-700 mb-1">Algum sonho ou objetivo perdeu o sentido? Por quê?</label>
+                            <textarea id="dest-sonho-sentido" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Mudanças naturais de rota na caminhada..."></textarea>
+                        </div>
+                        <div>
+                            <label for="dest-valores-fortes" class="block text-sm font-semibold text-slate-700 mb-1">Que valores estão mais fortes em mim hoje?</label>
+                            <textarea id="dest-valores-fortes" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Pilares do seu caráter..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloco de Progressão (Etapa 2) -->
+            <div class="p-6 bg-[#FFF3EB] rounded-2xl border-2 border-orange-200">
+                <div class="bg-pioneiro-red text-white text-center font-bold uppercase rounded-lg p-3 shadow-md mb-4 text-sm tracking-wider">
+                    Minha Progressão Pessoal do Ramo Pioneiro — Etapa Destino (Blocos 7 a 12)
+                </div>
+                <p class="text-xs text-slate-600 text-center mb-6">
+                    Insira as ações que pretende realizar na prática e como elas te preparam para o futuro:
+                </p>
+
+                <div class="space-y-4" id="grid-blocos-destino">
+                    <!-- Gerado Dinamicamente via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Checkpoint -->
+            <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2">🏁 Checkpoint (Ponto de verificação)</h3>
+                <div>
+                    <label for="dest-check-aprendizados" class="block text-sm font-semibold text-slate-700 mb-1">Que aprendizados mais me marcaram nesta etapa?</label>
+                    <textarea id="dest-check-aprendizados" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Reflexão geral..."></textarea>
+                </div>
+                <div>
+                    <label for="dest-check-fortalecer" class="block text-sm font-semibold text-slate-700 mb-1">O que ainda preciso fortalecer?</label>
+                    <textarea id="dest-check-fortalecer" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Pontos de melhoria restantes..."></textarea>
+                </div>
+                <div>
+                    <label for="dest-check-sentido" class="block text-sm font-semibold text-slate-700 mb-1">Meu Projeto de Vida continua fazendo sentido? O que devo atualizar?</label>
+                    <textarea id="dest-check-sentido" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Reavaliação geral..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== ETAPA 3: HORIZONTE ==================== -->
+        <div id="secao-horizonte" class="space-y-6 hidden">
+            <div class="bg-red-50 border-l-4 border-pioneiro-red p-5 rounded-r-xl">
+                <span class="inline-block bg-pioneiro-red text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-2">Ingressando na Etapa Horizonte</span>
+                <p class="text-sm text-slate-700 leading-relaxed text-justify">
+                    <strong>Objetivo:</strong> Consolidar a caminhada no Ramo Pioneiro, planejando o Desafio Pessoal e refletindo sobre a vida adulta após a Celebração da Partida.
+                </p>
+            </div>
+
+            <!-- Perguntas Reflexivas Horizonte -->
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Parte 1 -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">💼 Parte 1 - Minha bagagem</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="horiz-maiores-conquistas" class="block text-sm font-semibold text-slate-700 mb-1">Quais foram minhas maiores conquistas escoteiras e pessoais?</label>
+                            <textarea id="horiz-maiores-conquistas" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Acontecimentos marcantes da jornada..."></textarea>
+                        </div>
+                        <div>
+                            <label for="horiz-crescimento-pessoal" class="block text-sm font-semibold text-slate-700 mb-1">Como cresci e me transformei como pessoa?</label>
+                            <textarea id="horiz-crescimento-pessoal" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="O seu amadurecimento interno..."></textarea>
+                        </div>
+                        <div>
+                            <label for="horiz-experiencia-pioneira" class="block text-sm font-semibold text-slate-700 mb-1">O que quero levar comigo da experiência como pioneiro?</label>
+                            <textarea id="horiz-experiencia-pioneira" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Amizades, valores, ensinamentos, momentos..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Parte 2 -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm">
+                    <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2 mb-4">⛰️ Parte 2 - Planejamento do Desafio Pessoal</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="horiz-desafio-tema" class="block text-sm font-semibold text-slate-700 mb-1">Tema ou causa do Desafio Pessoal</label>
+                            <input type="text" id="horiz-desafio-tema" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Tema/Causa...">
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-objetivo" class="block text-sm font-semibold text-slate-700 mb-1">Objetivo principal</label>
+                            <textarea id="horiz-desafio-objetivo" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Qual o foco central do seu Desafio Pessoal?"></textarea>
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-itinerario" class="block text-sm font-semibold text-slate-700 mb-1">Itinerário/local</label>
+                            <input type="text" id="horiz-desafio-itinerario" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Lugares por onde passará ou onde atuará...">
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-duracao" class="block text-sm font-semibold text-slate-700 mb-1">Duração</label>
+                            <input type="text" id="horiz-desafio-duracao" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Ex: 3 dias, 1 mês, 6 meses...">
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-impacto" class="block text-sm font-semibold text-slate-700 mb-1">Impacto comunitário/ambiental</label>
+                            <textarea id="horiz-desafio-impacto" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Como isso mudará o ambiente ou ajudará as pessoas de forma prática?"></textarea>
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-acompanha" class="block text-sm font-semibold text-slate-700 mb-1">Quem me acompanha nesse desafio</label>
+                            <input type="text" id="horiz-desafio-acompanha" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Equipe, padrinho, ou mestre escoteiro...">
+                        </div>
+                        <div>
+                            <label for="horiz-desafio-representa" class="block text-sm font-semibold text-slate-700 mb-1">Como essa expedição representa minha história de vida?</label>
+                            <textarea id="horiz-desafio-representa" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Conexões e significados pessoais..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloco de Progressão (Etapa 3) -->
+            <div class="p-6 bg-[#FFF3EB] rounded-2xl border-2 border-orange-200">
+                <div class="bg-pioneiro-red text-white text-center font-bold uppercase rounded-lg p-3 shadow-md mb-4 text-sm tracking-wider">
+                    Minha Progressão Pessoal do Ramo Pioneiro — Etapa Horizonte (Blocos 13 a 18)
+                </div>
+                <p class="text-xs text-slate-600 text-center mb-6">
+                    Ações para a reta final e como cada uma delas se conecta com a sua vida fora do Clã:
+                </p>
+
+                <div class="space-y-4" id="grid-blocos-horizonte">
+                    <!-- Gerado Dinamicamente via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Parte 4 -->
+            <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2">🔮 Parte 4 - Meu próximo capítulo</h3>
+                <div>
+                    <label for="horiz-proximo-5anos" class="block text-sm font-semibold text-slate-700 mb-1">Como me vejo daqui a 5 anos?</label>
+                    <textarea id="horiz-proximo-5anos" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Projetando estudos, independência e cotidiano..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-proximo-papel" class="block text-sm font-semibold text-slate-700 mb-1">Que papel quero exercer no mundo?</label>
+                    <textarea id="horiz-proximo-papel" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Como cidadão ativo..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-proximo-voluntario" class="block text-sm font-semibold text-slate-700 mb-1">Quero continuar no Escotismo como voluntário(a)? Em que área?</label>
+                    <textarea id="horiz-proximo-voluntario" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Atuação em grupo local, regional ou nacional..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-proximo-rede" class="block text-sm font-semibold text-slate-700 mb-1">Como manterei minha rede de apoio?</label>
+                    <textarea id="horiz-proximo-rede" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Mantendo conexões de mentoria e amizades construtivas..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-proximo-legado" class="block text-sm font-semibold text-slate-700 mb-1">Que legado quero deixar?</label>
+                    <textarea id="horiz-proximo-legado" class="w-full border border-slate-200 rounded-lg p-3 text-sm linhas-caderno focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Sua marca no Clã e na comunidade..."></textarea>
+                </div>
+            </div>
+
+            <!-- Checkpoint Final -->
+            <div class="border border-slate-200 rounded-xl p-5 bg-white shadow-sm space-y-4">
+                <h3 class="text-base font-bold text-pioneiro-red border-b border-slate-100 pb-2">🏁 Checkpoint final (Ponto de verificação final)</h3>
+                <div>
+                    <label for="horiz-check-realizar" class="block text-sm font-semibold text-slate-700 mb-1">O que ainda desejo realizar?</label>
+                    <textarea id="horiz-check-realizar" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Metas e anseios remanescentes..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-check-cuidando" class="block text-sm font-semibold text-slate-700 mb-1">Como vou seguir cuidando de mim, dos outros e do mundo?</label>
+                    <textarea id="horiz-check-cuidando" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Cuidado pessoal e serviço social constante..."></textarea>
+                </div>
+                <div>
+                    <label for="horiz-check-lembrado" class="block text-sm font-semibold text-slate-700 mb-1">Como quero ser lembrado(a) pelo meu clã?</label>
+                    <textarea id="horiz-check-lembrado" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#D32F2F] outline-none transition-all" placeholder="Sua reputação e afeto no grupo..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOTIFICAÇÃO DE SALVAMENTO AUTOMÁTICO -->
+        <div class="flex items-center justify-end gap-2 text-sm text-emerald-600 font-bold bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+            <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping"></span>
+            <span id="status-autosave-text">Seus dados estão protegidos e salvos neste dispositivo.</span>
+        </div>
+
+        <!-- PAINEL DE BOTÕES DE CONTROLE -->
+        <div class="no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-6 border-t border-slate-200">
+            <button type="button" onclick="salvarArquivoBackup()" class="flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b02626] text-white font-bold p-3.5 rounded-xl transition-all shadow hover:shadow-lg active:scale-95">
+                💾 Salvar Rascunho (.json)
+            </button>
+            <button type="button" onclick="document.getElementById('input-upload').click();" class="flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b02626] text-white font-bold p-3.5 rounded-xl transition-all shadow hover:shadow-lg active:scale-95">
+                📂 Carregar Rascunho (.json)
+            </button>
+            <button type="button" onclick="exportarRelatorioTexto()" class="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-800 text-white font-bold p-3.5 rounded-xl transition-all shadow hover:shadow-lg active:scale-95">
+                📄 Exportar Texto (.txt)
+            </button>
+            <button type="button" onclick="compartilharCopiarLink()" class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3.5 rounded-xl transition-all shadow hover:shadow-lg active:scale-95">
+                🔗 Compartilhar Link
+            </button>
+            <button type="button" onclick="window.print()" class="flex items-center justify-center gap-2 bg-[#D32F2F] hover:bg-[#b52424] text-white font-bold p-3.5 rounded-xl transition-all shadow hover:shadow-lg active:scale-95">
+                🖨️ Imprimir / PDF
+            </button>
+            <button type="button" onclick="limparFormularioCompleto()" class="flex items-center justify-center gap-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold p-3.5 rounded-xl transition-all active:scale-95">
+                🗑️ Limpar Tudo
+            </button>
+        </div>
+        <input type="file" id="input-upload" accept=".json" class="hidden" onchange="carregarArquivoBackup(event)">
+
+    </form>
+
+    <!-- PAINEL DE CONFIGURAÇÃO DE LOGO / IMAGEM (ONLINE / OFFLINE) -->
+    <div class="no-print bg-slate-50 border-t border-slate-200 p-6">
+        <div onclick="alternarPainelConfig()" class="flex items-center gap-2 text-pioneiro-red font-bold text-sm cursor-pointer select-none hover:text-red-950 transition-colors">
+            ⚙️ <span>Configuração do Logotipo e Timbrado (Hospedagem Online ou Carregamento Local)</span>
+        </div>
+        <div id="painel-inputs-config" class="hidden mt-4 space-y-4 bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Insira o link online (URL) da imagem que deseja exibir ou faça upload do arquivo direto do seu celular para manter o logotipo e timbrado ativos mesmo totalmente sem internet. Os dados de imagem ficam guardados permanentemente no dispositivo!
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Seção Logo -->
+                <div class="space-y-2 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                    <span class="block text-xs font-bold text-slate-700 uppercase">Configuração do Logotipo</span>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Link Online da Imagem (URL):</label>
+                        <input type="text" id="cfg-logo-url" oninput="atualizarLogoViaUrl(this.value)" class="w-full bg-white border border-slate-300 rounded p-2 text-xs outline-none" placeholder="https://exemplo.com/logo.png">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Ou arquivo do dispositivo:</label>
+                        <input type="file" accept="image/*" onchange="salvarImagemOffline(this, 'pioneiro_logo_cache', 'img-logo')" class="w-full text-xs">
+                    </div>
+                </div>
+
+                <!-- Seção Timbrado -->
+                <div class="space-y-2 bg-slate-50 rounded-lg p-3 border border-slate-100">
+                    <span class="block text-xs font-bold text-slate-700 uppercase">Configuração do Timbrado (Fundo)</span>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Link Online da Imagem (URL):</label>
+                        <input type="text" id="cfg-timbrado-url" oninput="atualizarTimbradoViaUrl(this.value)" class="w-full bg-white border border-slate-300 rounded p-2 text-xs outline-none" placeholder="https://exemplo.com/timbrado.png">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] text-slate-500">Ou arquivo do dispositivo:</label>
+                        <input type="file" accept="image/*" onchange="salvarImagemOffline(this, 'pioneiro_timbrado_cache', 'img-timbrado')" class="w-full text-xs">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button type="button" onclick="redefinirImagensPadrao()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-1.5 px-3 rounded">
+                    Restaurar Imagens Padrão
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // IDs de controle para persistência de dados no localStorage
+    const camposEtapa1 = [
+        'desc-quem-sou', 'desc-caminhos',
+        'desc-pontos-fortes', 'desc-pontos-melhorar', 'desc-inspiracao', 'desc-habilidades', 'desc-preocupacao',
+        'desc-sonhos', 'desc-versao',
+        'desc-objetivo-principal', 'desc-acoes', 'desc-impacto',
+        'desc-padrinho', 'desc-rede-apoio'
+    ];
+    
+    const camposEtapa2 = [
+        'dest-promessa-decisoes', 'dest-compromisso-dia', 'dest-lei-desafiadora', 'dest-conflitos-resolvidos', 'dest-inspirar-outros',
+        'dest-conquistas-anterior', 'dest-dificuldades-superadas', 'dest-mudanca-pessoal',
+        'dest-prioridades-atuais', 'dest-sonho-sentido', 'dest-valores-fortes',
+        'dest-check-aprendizados', 'dest-check-fortalecer', 'dest-check-sentido'
+    ];
+
+    const camposEtapa3 = [
+        'horiz-maiores-conquistas', 'horiz-crescimento-pessoal', 'horiz-experiencia-pioneira',
+        'horiz-desafio-tema', 'horiz-desafio-objetivo', 'horiz-desafio-itinerario', 'horiz-desafio-duracao', 'horiz-desafio-impacto', 'horiz-desafio-acompanha', 'horiz-desafio-representa',
+        'horiz-proximo-5anos', 'horiz-proximo-papel', 'horiz-proximo-voluntario', 'horiz-proximo-rede', 'horiz-proximo-legado',
+        'horiz-check-realizar', 'horiz-check-cuidando', 'horiz-check-lembrado'
+    ];
+
+    const camposIdentificacao = ['ident-nome', 'ident-data'];
+
+    // Lista unificada para automação de varreduras
+    let todosCamposIds = [...camposIdentificacao, ...camposEtapa1, ...camposEtapa2, ...camposEtapa3];
+
+    // Registra os blocos dinâmicos adicionados por etapa (Sequencial exato conforme as imagens oficiais!)
+    for(let i = 1; i <= 6; i++) {
+        todosCamposIds.push(`b-desc-n-${i}`, `b-desc-a-${i}`, `b-desc-f-${i}`);
+    }
+    for(let i = 7; i <= 12; i++) {
+        todosCamposIds.push(`b-dest-n-${i}`, `b-dest-a-${i}`, `b-dest-f-${i}`);
+    }
+    for(let i = 13; i <= 18; i++) {
+        todosCamposIds.push(`b-horiz-n-${i}`, `b-horiz-a-${i}`, `b-horiz-f-${i}`);
+    }
+
+    const CHAVE_LOCAL_STORAGE = "projeto_vida_ramo_pioneiro_2025";
+
+    // 1. CARREGAMENTO INICIAL DO SISTEMA
+    window.onload = function() {
+        renderizarEstruturaTabelas();
+        carregarImagensDoCache();
+        carregarDadosSalvos();
+
+        // Acoplar disparador do autosave em tempo real
+        todosCamposIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', dispararAutoSalvar);
+            }
+        });
+
+        // Detecção de dados decodificados via compartilhamento de link
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.has('dadosPioneiro')) {
+            try {
+                const dadosDecodificados = JSON.parse(decodeURIComponent(escape(atob(queryParams.get('dadosPioneiro')))));
+                abrirCustomConfirm("Encontramos dados compartilhados via link. Deseja carregar no formulário?\n(Isso substituirá temporariamente seu rascunho anterior)", function() {
+                    todosCamposIds.forEach(id => {
+                        if (dadosDecodificados[id] !== undefined) {
+                            const el = document.getElementById(id);
+                            if (el) el.value = dadosDecodificados[id];
+                        }
+                    });
+                    salvarNoDispositivo();
+                    abrirCustomAlert("Dados importados com sucesso! Não esqueça de revisar os campos.");
+                });
+            } catch (e) {
+                abrirCustomAlert("Falha ao ler os dados do link compartilhado.");
+                console.error(e);
+            }
+        }
+
+        // Registrar o Service Worker do PWA se disponível no servidor
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registrado com sucesso para o PWA!', reg))
+                .catch(err => console.log('Service worker não registrado (normal no ambiente de visualização local):', err));
+        }
+    };
+
+    // 2. RENDERIZADOR DE TABELAS DE PROGRESSÃO LIVRE (6 BLOCOS EM BRANCO POR ETAPA - TODAS NO VERMELHO)
+    function renderizarEstruturaTabelas() {
+        const gridDesc = document.getElementById('grid-blocos-descoberta');
+        const gridDest = document.getElementById('grid-blocos-destino');
+        const gridHoriz = document.getElementById('grid-blocos-horizonte');
+
+        const configEtapas = [
+            {
+                grid: gridDesc,
+                prefix: 'desc',
+                rangeStart: 1,
+                rangeEnd: 6,
+                color: 'border-orange-100 focus:ring-[#D32F2F]',
+                placeholderAcao: 'O que vou fazer para realizá-lo? (Ações Educativas)',
+                placeholderFort: 'Como esse bloco fortalece meu Projeto de Vida?'
+            },
+            {
+                grid: gridDest,
+                prefix: 'dest',
+                rangeStart: 7,
+                rangeEnd: 12,
+                color: 'border-orange-100 focus:ring-[#D32F2F]',
+                placeholderAcao: 'O que pretendo realizar na prática? (Ações Educativas)',
+                placeholderFort: 'Como isso me prepara para a vida adulta?'
+            },
+            {
+                grid: gridHoriz,
+                prefix: 'horiz',
+                rangeStart: 13,
+                rangeEnd: 18,
+                color: 'border-orange-100 focus:ring-[#D32F2F]',
+                placeholderAcao: 'O que farei para colocá-lo em prática? (Ações Educativas)',
+                placeholderFort: 'Como ele se conecta com minha vida após o clã?'
+            }
+        ];
+
+        configEtapas.forEach(etapa => {
+            etapa.grid.innerHTML = '';
+            for(let i = etapa.rangeStart; i <= etapa.rangeEnd; i++) {
+                const row = document.createElement('div');
+                row.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-100 grid grid-cols-1 md:grid-cols-12 gap-3 items-center";
+                row.innerHTML = `
+                    <div class="md:col-span-1 flex justify-center">
+                        <span class="w-10 h-10 bg-pioneiro-red text-white font-bold rounded-full flex items-center justify-center text-sm shadow-sm">${i}</span>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Nome do Bloco</label>
+                        <input type="text" id="b-${etapa.prefix}-n-${i}" class="w-full bg-slate-50 border border-slate-200 rounded p-2 text-xs focus:ring-2 ${etapa.color} outline-none" placeholder="Ex: Autonomia e Liderança">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">${etapa.placeholderAcao}</label>
+                        <textarea id="b-${etapa.prefix}-a-${i}" class="w-full bg-slate-50 border border-slate-200 rounded p-2 text-xs focus:ring-2 ${etapa.color} outline-none h-16" placeholder="Ações concretas..."></textarea>
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">${etapa.placeholderFort}</label>
+                        <textarea id="b-${etapa.prefix}-f-${i}" class="w-full bg-slate-50 border border-slate-200 rounded p-2 text-xs focus:ring-2 ${etapa.color} outline-none h-16" placeholder="Conexão com os objetivos..."></textarea>
+                    </div>
+                `;
+                etapa.grid.appendChild(row);
+            }
+        });
+    }
+
+    // 3. SELETOR DE ETAPAS (Abas - Mantendo todas no Vermelho Pioneiro)
+    function alternarEtapa(etapa) {
+        document.getElementById('secao-descoberta').classList.add('hidden');
+        document.getElementById('secao-destino').classList.add('hidden');
+        document.getElementById('secao-horizonte').classList.add('hidden');
+
+        document.getElementById('tab-descoberta').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50";
+        document.getElementById('tab-destino').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50";
+        document.getElementById('tab-horizonte').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-white text-slate-700 hover:bg-slate-50";
+
+        if (etapa === 'descoberta') {
+            document.getElementById('secao-descoberta').classList.remove('hidden');
+            document.getElementById('tab-descoberta').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-pioneiro-red text-white";
+        } else if (etapa === 'destino') {
+            document.getElementById('secao-destino').classList.remove('hidden');
+            document.getElementById('tab-destino').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-pioneiro-red text-white";
+        } else if (etapa === 'horizonte') {
+            document.getElementById('secao-horizonte').classList.remove('hidden');
+            document.getElementById('tab-horizonte').className = "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 bg-pioneiro-red text-white";
+        }
+    }
+
+    // 4. DIÁLOGOS CUSTOMIZADOS (Evitando uso do alert/confirm do sistema)
+    let acaoConfirmacaoPendente = null;
+
+    function abrirCustomAlert(mensagem, titulo = "Notificação") {
+        document.getElementById('alert-titulo').textContent = titulo;
+        document.getElementById('alert-mensagem').textContent = mensagem;
+        document.getElementById('modal-alert').classList.remove('hidden');
+    }
+
+    function fecharModalAlert() {
+        document.getElementById('modal-alert').classList.add('hidden');
+    }
+
+    function abrirCustomConfirm(mensagem, acaoSucesso, titulo = "Confirmação Requerida") {
+        document.getElementById('confirm-titulo').textContent = titulo;
+        document.getElementById('confirm-mensagem').textContent = mensagem;
+        acaoConfirmacaoPendente = acaoSucesso;
+
+        document.getElementById('modal-confirm').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-confirm-cancelar').addEventListener('click', () => {
+        document.getElementById('modal-confirm').classList.add('hidden');
+        acaoConfirmacaoPendente = null;
+    });
+
+    document.getElementById('btn-confirm-sim').addEventListener('click', () => {
+        document.getElementById('modal-confirm').classList.add('hidden');
+        if(acaoConfirmacaoPendente) acaoConfirmacaoPendente();
+        acaoConfirmacaoPendente = null;
+    });
+
+    // 5. MECANISMO DE SALVAMENTO AUTOMÁTICO (Auto-Save)
+    let timerAutoSalvar;
+    function dispararAutoSalvar() {
+        const textIndicator = document.getElementById('status-autosave-text');
+        textIndicator.textContent = "Processando alterações...";
+        textIndicator.parentNode.className = "flex items-center justify-end gap-2 text-sm text-amber-600 font-bold bg-amber-50 p-3 rounded-lg border border-amber-100";
+
+        clearTimeout(timerAutoSalvar);
+        timerAutoSalvar = setTimeout(() => {
+            salvarNoDispositivo();
+            textIndicator.textContent = "Seus dados estão protegidos e salvos neste dispositivo.";
+            textIndicator.parentNode.className = "flex items-center justify-end gap-2 text-sm text-emerald-600 font-bold bg-emerald-50 p-3 rounded-lg border border-emerald-100";
+        }, 800);
+    }
+
+    function salvarNoDispositivo() {
+        const payload = {};
+        todosCamposIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) payload[id] = el.value;
+        });
+        localStorage.setItem(CHAVE_LOCAL_STORAGE, JSON.stringify(payload));
+    }
+
+    function carregarDadosSalvos() {
+        const rascunhoSalvo = localStorage.getItem(CHAVE_LOCAL_STORAGE);
+        if (rascunhoSalvo) {
+            try {
+                const dados = JSON.parse(rascunhoSalvo);
+                todosCamposIds.forEach(id => {
+                    if (dados[id] !== undefined) {
+                        const el = document.getElementById(id);
+                        if (el) el.value = dados[id];
+                    }
+                });
+            } catch (e) {
+                console.error("Erro ao ler rascunho do LocalStorage", e);
+            }
+        }
+    }
+
+    // 6. LIMPEZA TOTAL DO FORMULÁRIO COM CONFIRMAÇÃO DUPLA
+    function limparFormularioCompleto() {
+        abrirCustomConfirm("Tem certeza de que deseja limpar todas as respostas de todas as etapas?", function() {
+            abrirCustomConfirm("ESTA AÇÃO É TOTALMENTE IRREVERSÍVEL!\nConfirma a exclusão de todos os dados do dispositivo?", function() {
+                todosCamposIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.value = "";
+                });
+                localStorage.removeItem(CHAVE_LOCAL_STORAGE);
+                document.getElementById('status-autosave-text').textContent = "Formulário limpo com sucesso.";
+                abrirCustomAlert("Todos os campos do formulário foram limpos.");
+            });
+        });
+    }
+
+    // 7. EXPORTAR RASCUNHO LEVE (JSON)
+    function salvarArquivoBackup() {
+        const payload = {};
+        todosCamposIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) payload[id] = el.value;
+        });
+
+        const nome = document.getElementById('ident-nome').value.trim().replace(/\s+/g, '_') || "Pioneiro";
+        const stringDados = JSON.stringify(payload, null, 2);
+        const blob = new Blob([stringDados], {type: "application/json;charset=utf-8"});
+        
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `PV_Ramo_Pioneiro_${nome}.json`;
+        a.click();
+    }
+
+    // 8. IMPORTAR RASCUNHO LEVE (JSON)
+    function carregarArquivoBackup(event) {
+        const arquivo = event.target.files[0];
+        if (!arquivo) return;
+
+        const leitor = new FileReader();
+        leitor.onload = function(e) {
+            try {
+                const dadosCarregados = JSON.parse(e.target.result);
+                todosCamposIds.forEach(id => {
+                    if (dadosCarregados[id] !== undefined) {
+                        const el = document.getElementById(id);
+                        if (el) el.value = dadosCarregados[id];
+                    }
+                });
+                salvarNoDispositivo();
+                abrirCustomAlert("Rascunho recuperado e carregado com sucesso!");
+                document.getElementById('input-upload').value = "";
+            } catch (err) {
+                abrirCustomAlert("O arquivo selecionado é inválido ou está corrompido.");
+            }
+        };
+        leitor.readAsText(arquivo);
+    }
+
+    // 9. EXPORTAR RELATÓRIO DO PIONEIRO EM FORMATO TEXTO (.TXT)
+    function exportarRelatorioTexto() {
+        const nome = document.getElementById('ident-nome').value || "Não identificado";
+        const data = document.getElementById('ident-data').value || "Não informada";
+
+        let txt = `=========================================================\n`;
+        txt += `        PROJETO DE VIDA - RAMO PIONEIRO (ATUALIZADO)     \n`;
+        txt += `=========================================================\n\n`;
+        txt += `Pioneiro(a): ${nome}\n`;
+        txt += `Data do Documento: ${data}\n`;
+        txt += `---------------------------------------------------------\n\n`;
+
+        txt += `=========================================================\n`;
+        txt += `                [ETAPA 1: DESCOBERTA]                     \n`;
+        txt += `=========================================================\n\n`;
+        txt += `* "Quem sou eu?":\n  ${document.getElementById('desc-quem-sou').value || 'Pendente'}\n\n`;
+        txt += `* "Quais caminhos desejo trilhar?":\n  ${document.getElementById('desc-caminhos').value || 'Pendente'}\n\n`;
+        txt += `* Pontos fortes e talentos:\n  ${document.getElementById('desc-pontos-fortes').value || 'Pendente'}\n\n`;
+        txt += `* Pontos a melhorar:\n  ${document.getElementById('desc-pontos-melhorar').value || 'Pendente'}\n\n`;
+        txt += `* Minha inspiração:\n  ${document.getElementById('desc-inspiracao').value || 'Pendente'}\n\n`;
+        txt += `* Habilidades a desenvolver:\n  ${document.getElementById('desc-habilidades').value || 'Pendente'}\n\n`;
+        txt += `* Principais desafios no momento:\n  ${document.getElementById('desc-preocupacao').value || 'Pendente'}\n\n`;
+        txt += `* Sonhos para 5 anos:\n  ${document.getElementById('desc-sonhos').value || 'Pendente'}\n\n`;
+        txt += `* Melhor versão de mim:\n  ${document.getElementById('desc-versao').value || 'Pendente'}\n\n`;
+        txt += `* Principal objetivo atual:\n  ${document.getElementById('desc-objetivo-principal').value || 'Pendente'}\n\n`;
+        txt += `* Pequenas ações práticas hoje:\n  ${document.getElementById('desc-acoes').value || 'Pendente'}\n\n`;
+        txt += `* Geração de impacto positivo:\n  ${document.getElementById('desc-impacto').value || 'Pendente'}\n\n`;
+
+        txt += `--- PROGRESSÃO PESSOAL (DESCOBERTA: BLOCOS 1 A 6) ---\n`;
+        for (let i = 1; i <= 6; i++) {
+            txt += `  Bloco ${i}:\n`;
+            txt += `    - Nome: ${document.getElementById(`b-desc-n-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Ações: ${document.getElementById(`b-desc-a-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Fortalecimento: ${document.getElementById(`b-desc-f-${i}`).value || 'Em branco'}\n\n`;
+        }
+
+        txt += `* Padrinho/Madrinha planejado:\n  ${document.getElementById('desc-padrinho').value || 'Pendente'}\n\n`;
+        txt += `* Fontes adicionais de apoio:\n  ${document.getElementById('desc-rede-apoio').value || 'Pendente'}\n\n`;
+
+        txt += `=========================================================\n`;
+        txt += `                 [ETAPA 2: DESTINO]                      \n`;
+        txt += `=========================================================\n\n`;
+        txt += `* Influência da Promessa/Lei fora do movimento:\n  ${document.getElementById('dest-promessa-decisoes').value || 'Pendente'}\n\n`;
+        txt += `* Como vivo o compromisso da Promessa no dia a dia:\n  ${document.getElementById('dest-compromisso-dia').value || 'Pendente'}\n\n`;
+        txt += `* Artigos da Lei mais desafiadores na vida adulta:\n  ${document.getElementById('dest-lei-desafiadora').value || 'Pendente'}\n\n`;
+        txt += `* Momentos em que valores ajudaram a resolver conflitos:\n  ${document.getElementById('dest-conflitos-resolvidos').value || 'Pendente'}\n\n`;
+        txt += `* Como inspirar outras pessoas com valores escoteiros:\n  ${document.getElementById('dest-inspirar-outros').value || 'Pendente'}\n\n`;
+        txt += `* Conquistas desde a etapa anterior:\n  ${document.getElementById('dest-conquistas-anterior').value || 'Pendente'}\n\n`;
+        txt += `* Maiores dificuldades e como superei:\n  ${document.getElementById('dest-dificuldades-superadas').value || 'Pendente'}\n\n`;
+        txt += `* O que mudou em mim desde então:\n  ${document.getElementById('dest-mudanca-pessoal').value || 'Pendente'}\n\n`;
+        txt += `* Minhas prioridades atuais:\n  ${document.getElementById('dest-prioridades-atuais').value || 'Pendente'}\n\n`;
+        txt += `* Sonho ou objetivo que perdeu sentido:\n  ${document.getElementById('dest-sonho-sentido').value || 'Pendente'}\n\n`;
+        txt += `* Valores mais fortes hoje:\n  ${document.getElementById('dest-valores-fortes').value || 'Pendente'}\n\n`;
+
+        txt += `--- PROGRESSÃO PESSOAL (DESTINO: BLOCOS 7 A 12) ---\n`;
+        for (let i = 7; i <= 12; i++) {
+            txt += `  Bloco ${i}:\n`;
+            txt += `    - Nome: ${document.getElementById(`b-dest-n-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Ações: ${document.getElementById(`b-dest-a-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Preparação Vida Adulta: ${document.getElementById(`b-dest-f-${i}`).value || 'Em branco'}\n\n`;
+        }
+
+        txt += `* Checkpoint - Aprendizados mais marcantes:\n  ${document.getElementById('dest-check-aprendizados').value || 'Pendente'}\n\n`;
+        txt += `* Checkpoint - O que precisa fortalecer:\n  ${document.getElementById('dest-check-fortalecer').value || 'Pendente'}\n\n`;
+        txt += `* Checkpoint - Sentido do Projeto de Vida e atualizações:\n  ${document.getElementById('dest-check-sentido').value || 'Pendente'}\n\n`;
+
+        txt += `=========================================================\n`;
+        txt += `                [ETAPA 3: HORIZONTE]                     \n`;
+        txt += `=========================================================\n\n`;
+        txt += `* Maiores conquistas pessoais/escoteiras:\n  ${document.getElementById('horiz-maiores-conquistas').value || 'Pendente'}\n\n`;
+        txt += `* Como cresceu/se transformou como pessoa:\n  ${document.getElementById('horiz-crescimento-pessoal').value || 'Pendente'}\n\n`;
+        txt += `* O que quer levar da experiência pioneira:\n  ${document.getElementById('horiz-experiencia-pioneira').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Tema:\n  ${document.getElementById('horiz-desafio-tema').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Objetivo principal:\n  ${document.getElementById('horiz-desafio-objetivo').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Itinerário/Local:\n  ${document.getElementById('horiz-desafio-itinerario').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Duração:\n  ${document.getElementById('horiz-desafio-duracao').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Impacto comunitário:\n  ${document.getElementById('horiz-desafio-impacto').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Quem acompanha:\n  ${document.getElementById('horiz-desafio-acompanha').value || 'Pendente'}\n\n`;
+        txt += `* Planejamento do Desafio - Representatividade na história de vida:\n  ${document.getElementById('horiz-desafio-representa').value || 'Pendente'}\n\n`;
+
+        txt += `--- PROGRESSÃO PESSOAL (HORIZONTE: BLOCOS 13 A 18) ---\n`;
+        for (let i = 13; i <= 18; i++) {
+            txt += `  Bloco ${i}:\n`;
+            txt += `    - Nome: ${document.getElementById(`b-horiz-n-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Ações: ${document.getElementById(`b-horiz-a-${i}`).value || 'Em branco'}\n`;
+            txt += `    - Conexão pós-clã: ${document.getElementById(`b-horiz-f-${i}`).value || 'Em branco'}\n\n`;
+        }
+
+        txt += `* Próximo Capítulo - Daqui a 5 anos:\n  ${document.getElementById('horiz-proximo-5anos').value || 'Pendente'}\n\n`;
+        txt += `* Próximo Capítulo - Papel no mundo:\n  ${document.getElementById('horiz-proximo-papel').value || 'Pendente'}\n\n`;
+        txt += `* Próximo Capítulo - Pretende ser voluntário(a) / Área:\n  ${document.getElementById('horiz-proximo-voluntario').value || 'Pendente'}\n\n`;
+        txt += `* Próximo Capítulo - Manutenção de rede de apoio:\n  ${document.getElementById('horiz-proximo-rede').value || 'Pendente'}\n\n`;
+        txt += `* Próximo Capítulo - Legado:\n  ${document.getElementById('horiz-proximo-legado').value || 'Pendente'}\n\n`;
+        txt += `* Checkpoint Final - O que deseja realizar:\n  ${document.getElementById('horiz-check-realizar').value || 'Pendente'}\n\n`;
+        txt += `* Checkpoint Final - Cuidar de si, dos outros e do mundo:\n  ${document.getElementById('horiz-check-cuidando').value || 'Pendente'}\n\n`;
+        txt += `* Checkpoint Final - Como quer ser lembrado(a) no clã:\n  ${document.getElementById('horiz-check-lembrado').value || 'Pendente'}\n\n`;
+
+        txt += `=========================================================\n`;
+        txt += `Documento emitido offline de forma autônoma.\n`;
+
+        const blob = new Blob([txt], {type: "text/plain;charset=utf-8"});
+        const a = document.createElement('a');
+        const nomeArquivo = nome.trim().replace(/\s+/g, '_') || "Pioneiro";
+        a.href = URL.createObjectURL(blob);
+        a.download = `Relatorio_Projeto_Vida_Pioneiro_${nomeArquivo}.txt`;
+        a.click();
+    }
+
+    // 10. COMPARTILHAMENTO DE RESPOSTAS VIA URL CODIFICADA
+    function compartilharCopiarLink() {
+        const payload = {};
+        todosCamposIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) payload[id] = el.value;
+        });
+
+        try {
+            const stringDados = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+            const urlFinal = window.location.origin + window.location.pathname + '?dadosPioneiro=' + stringDados;
+
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Projeto de Vida Pioneiro — Etapas',
+                    text: 'Minhas anotações da Ferramenta de Projeto de Vida!',
+                    url: urlFinal
+                }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(urlFinal).then(() => {
+                    abrirCustomAlert("O link contendo as suas respostas foi copiado com sucesso para a área de transferência!\n\nAgora você pode enviá-lo por mensagem (WhatsApp/e-mail) para seu Mestre.", "Link Copiado!");
+                }).catch(err => {
+                    abrirCustomAlert("Falha ao copiar automaticamente. Selecione a URL atual de seu navegador que possui seus dados.", "Erro");
+                });
+            }
+        } catch (err) {
+            abrirCustomAlert("Erro de codificação para compartilhamento.");
+            console.error(err);
+        }
+    }
+
+    // 11. GESTÃO DOS LOGOTIPOS E TIMBRADOS (ONLINE / OFFLINE)
+    function alternarPainelConfig() {
+        const painel = document.getElementById('painel-inputs-config');
+        painel.classList.toggle('hidden');
+    }
+
+    function salvarImagemOffline(inputElement, cacheKey, imageElementId) {
+        const file = inputElement.files[0];
+        if (!file) return;
+
+        const leitor = new FileReader();
+        leitor.onload = function(e) {
+            const base64String = e.target.result;
+            localStorage.setItem(cacheKey, base64String);
+            
+            const imgElement = document.getElementById(imageElementId);
+            if (imgElement) {
+                imgElement.src = base64String;
+                imgElement.style.display = 'block';
+                if (imageElementId === 'img-logo') {
+                    const fallback = document.getElementById('logo-fallback-placeholder');
+                    if (fallback) fallback.remove();
+                }
+            }
+            abrirCustomAlert("Imagem salva localmente no navegador!");
+        };
+        leitor.readAsDataURL(file);
+    }
+
+    function atualizarLogoViaUrl(url) {
+        if (!url) return;
+        localStorage.setItem('pioneiro_logo_url_cache', url);
+        const imgLogo = document.getElementById('img-logo');
+        if (imgLogo) {
+            imgLogo.src = url;
+            imgLogo.style.display = 'block';
+            const fallback = document.getElementById('logo-fallback-placeholder');
+            if (fallback) fallback.remove();
+        }
+    }
+
+    function atualizarTimbradoViaUrl(url) {
+        if (!url) return;
+        localStorage.setItem('pioneiro_timbrado_url_cache', url);
+        const imgTimbrado = document.getElementById('img-timbrado');
+        if (imgTimbrado) {
+            imgTimbrado.src = url;
+            imgTimbrado.style.display = 'block';
+        }
+    }
+
+    function carregarImagensDoCache() {
+        const logoUrl = localStorage.getItem('pioneiro_logo_url_cache');
+        if (logoUrl) {
+            document.getElementById('cfg-logo-url').value = logoUrl;
+            atualizarLogoViaUrl(logoUrl);
+        } else {
+            const logoCache = localStorage.getItem('pioneiro_logo_cache');
+            if (logoCache) {
+                const imgLogo = document.getElementById('img-logo');
+                if (imgLogo) {
+                    imgLogo.src = logoCache;
+                    const fallback = document.getElementById('logo-fallback-placeholder');
+                    if (fallback) fallback.remove();
+                }
+            }
+        }
+
+        const timbradoUrl = localStorage.getItem('pioneiro_timbrado_url_cache');
+        if (timbradoUrl) {
+            document.getElementById('cfg-timbrado-url').value = timbradoUrl;
+            atualizarTimbradoViaUrl(timbradoUrl);
+        } else {
+            const timbradoCache = localStorage.getItem('pioneiro_timbrado_cache');
+            if (timbradoCache) {
+                const imgTimbrado = document.getElementById('img-timbrado');
+                if (imgTimbrado) {
+                    imgTimbrado.src = timbradoCache;
+                    imgTimbrado.style.display = 'block';
+                }
+            }
+        }
+    }
+
+    function redefinirImagensPadrao() {
+        abrirCustomConfirm("Deseja apagar todos os links e arquivos de imagem customizados e retornar às imagens padrões do sistema?", function() {
+            localStorage.removeItem('pioneiro_logo_cache');
+            localStorage.removeItem('pioneiro_timbrado_cache');
+            localStorage.removeItem('pioneiro_logo_url_cache');
+            localStorage.removeItem('pioneiro_timbrado_url_cache');
+            abrirCustomAlert("As imagens foram resetadas. Atualize a página para reverter para o visual padrão.", "Sucesso");
+            window.location.reload();
+        });
+    }
+
+    function carregarFallbackLogo(imgElement) {
+        if (imgElement.src.startsWith('data:')) return;
+        imgElement.style.display = 'none';
+        const areaLogo = document.getElementById('area-logo');
+        if (areaLogo && !document.getElementById('logo-fallback-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.id = 'logo-fallback-placeholder';
+            placeholder.className = 'border-2 border-dashed border-slate-300 p-4 rounded-xl text-center text-pioneiro-red font-extrabold text-xs bg-slate-50 max-w-[150px]';
+            placeholder.innerHTML = `
+                <div class="text-xl mb-1">⚜️</div>
+                <div>RAMO PIONEIRO</div>
+            `;
+            areaLogo.appendChild(placeholder);
+        }
+    }
+
+    function esconderImagemQuebrada(imgElement) {
+        if (imgElement.src.startsWith('data:')) return;
+        imgElement.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
