@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pioneiro-pv-v2'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
+const CACHE_NAME = 'pioneiro-pv-v3'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
 
 const ASSETS = [
     './',
