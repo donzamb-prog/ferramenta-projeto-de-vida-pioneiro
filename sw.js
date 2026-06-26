@@ -1,3 +1,16 @@
+/*
+=========================================================
+ferramenta-projeto-de-vida-pioneiro/
+Copyright (c) 2026 Donizete Zambeli
+
+Licenciado conforme os termos do arquivo LICENSE.
+
+Repositório oficial:
+https://donzamb-prog.github.io/ferramenta-projeto-de-vida-pioneiro/
+=========================================================
+*/
+
+const CACHE_NAME = 'checklist-acidentes-gh-v1';
 const CACHE_NAME = 'pioneiro-pv-v3'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
 
 const ASSETS = [
