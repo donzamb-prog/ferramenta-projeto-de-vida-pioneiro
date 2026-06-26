@@ -7,8 +7,10 @@ Licenciado conforme os termos do arquivo LICENSE.
 
 Repositório oficial:
 https://donzamb-prog.github.io/ferramenta-projeto-de-vida-pioneiro/
-=========================================================
-*/
+
+Desenvolvido por Donizete Zambeli
+Projeto ferramenta-projeto-de-vida-pioneiro/
+=========================================================*/
 
 const CACHE_NAME = 'checklist-acidentes-gh-v1';
 const CACHE_NAME = 'pioneiro-pv-v3'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
