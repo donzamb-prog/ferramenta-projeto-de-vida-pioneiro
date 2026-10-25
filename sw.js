@@ -12,8 +12,7 @@ Desenvolvido por Donizete Zambeli
 Projeto ferramenta-projeto-de-vida-pioneiro/
 =========================================================*/
 
-const CACHE_NAME = 'checklist-acidentes-gh-v1';
-const CACHE_NAME = 'pioneiro-pv-v3'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
+const CACHE_NAME = 'pioneiro-pv-v4'; // Mudamos de v1 para v2 para forçar a atualização nos aparelhos!
 
 const ASSETS = [
     './',
